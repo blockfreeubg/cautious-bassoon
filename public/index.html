@@ -47,6 +47,15 @@ html, body {
     align-items:center;
     gap:8px;
     cursor:pointer;
+    transition: background 0.2s;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tab:hover {
+    background:#3c4043;
 }
 
 .tab.active {
@@ -57,21 +66,62 @@ html, body {
     font-size:12px;
     opacity:.7;
     cursor:pointer;
+    margin-left: auto;
+}
+
+.close:hover {
+    opacity:1;
+    color:#ff4444;
 }
 
 .new-tab {
     font-size:20px;
     padding:0 8px;
     cursor:pointer;
+    color:#fff;
 }
 
-/* Address bar */
+.new-tab:hover {
+    color:#8ab4f8;
+}
+
+/* Browser bar */
 .browser-bar {
     height:48px;
     background:#2b2b2b;
     display:flex;
     align-items:center;
     padding:0 12px;
+    gap:8px;
+}
+
+.nav-controls {
+    display: flex;
+    gap: 8px;
+    margin-right: 4px;
+}
+
+.nav-btn {
+    background: #3c4043;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.nav-btn:hover {
+    background: #4a4f55;
+}
+
+.nav-btn:active {
+    background: #5a5f67;
 }
 
 #sj-form {
@@ -89,6 +139,30 @@ html, body {
     color:white;
     font-size:14px;
     outline:none;
+    transition: all 0.2s;
+}
+
+#sj-address:focus {
+    background:#4a4f55;
+    box-shadow:0 0 0 2px #8ab4f8;
+}
+
+#external-window {
+    background:#3c4043;
+    color:white;
+    border:none;
+    border-radius:18px;
+    padding:6px 12px;
+    cursor:pointer;
+    font-size:16px;
+    display:flex;
+    align-items:center;
+    gap:4px;
+    transition:background 0.2s;
+}
+
+#external-window:hover {
+    background:#4a4f55;
 }
 
 /* Page view */
@@ -108,6 +182,47 @@ html, body {
 .view-area iframe.active {
     display:block;
 }
+
+/* Error page styling */
+.error-page {
+    background:#202124;
+    color:white;
+    font-family:system-ui;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100%;
+    margin:0;
+}
+
+.error-container {
+    text-align:center;
+    background:#2b2b2b;
+    padding:30px;
+    border-radius:12px;
+    max-width:400px;
+}
+
+.error-container h3 {
+    margin-top:0;
+    color:#ff4444;
+}
+
+.error-container button {
+    background:#3c4043;
+    color:white;
+    border:none;
+    padding:8px 16px;
+    border-radius:18px;
+    cursor:pointer;
+    margin-top:10px;
+    font-size:14px;
+    transition:background 0.2s;
+}
+
+.error-container button:hover {
+    background:#4a4f55;
+}
 </style>
 </head>
 
@@ -119,12 +234,18 @@ html, body {
 </div>
 
 <div class="browser-bar">
+<div class="nav-controls">
+    <button id="back-btn" class="nav-btn" title="Back">←</button>
+    <button id="forward-btn" class="nav-btn" title="Forward">→</button>
+    <button id="reload-btn" class="nav-btn" title="Reload">↻</button>
+</div>
+
 <form id="sj-form">
-<input id="sj-search-engine"
-value="https://www.google.com/search?q=%s"
-type="hidden">
-<input id="sj-address" placeholder="Search or enter URL">
+<input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden">
+<input id="sj-address" placeholder="Search or enter URL" autocomplete="off">
 </form>
+
+<button id="external-window" title="Open in new window">↗</button>
 </div>
 
 <div class="view-area" id="views"></div>
@@ -135,64 +256,345 @@ type="hidden">
 let tabCount = 0;
 let activeTab = null;
 
+// Proxy configuration
+const PROXY_ENABLED = true;
+const PROXY_PREFIX = '/baremux/'; // Adjust this based on your proxy setup
+
+// Initialize proxy if available
+window.addEventListener('load', async () => {
+    try {
+        if (window.__SCRAMJET) {
+            console.log('Scramjet proxy available');
+        }
+        if (window.__BARE_MUX) {
+            console.log('BareMux available');
+        }
+    } catch(e) {
+        console.error('Proxy initialization:', e);
+    }
+});
+
+function formatUrl(input) {
+    input = input.trim();
+    
+    // If empty, return default
+    if (!input) return 'about:blank';
+    
+    // Check if it's a URL (has dots and no spaces)
+    if (input.includes('.') && !input.includes(' ')) {
+        // Add protocol if missing
+        if (!input.startsWith('http://') && !input.startsWith('https://')) {
+            return 'https://' + input;
+        }
+        return input;
+    } else {
+        // Treat as search query
+        const searchEngine = document.getElementById("sj-search-engine").value;
+        return searchEngine.replace('%s', encodeURIComponent(input));
+    }
+}
+
+function getProxyUrl(url) {
+    if (!PROXY_ENABLED || url === 'about:blank' || url.startsWith('about:')) {
+        return url;
+    }
+    
+    // Don't proxy local files or data URLs
+    if (url.startsWith('data:') || url.startsWith('file:')) {
+        return url;
+    }
+    
+    // Use proxy for external URLs
+    return PROXY_PREFIX + url;
+}
+
 function createTab(url="about:blank") {
     tabCount++;
+    const tabId = "tab" + tabCount + "_" + Date.now();
 
-    const tabId = "tab"+tabCount;
+    // Remove active class from all existing tabs and iframes
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll("iframe").forEach(f => f.classList.remove("active"));
 
-    // tab button
+    // Create tab button
     const tab = document.createElement("div");
     tab.className = "tab active";
     tab.dataset.id = tabId;
+    
+    const displayUrl = url === 'about:blank' ? 'New Tab' : url.split('/').pop() || url;
     tab.innerHTML = `
-        Tab ${tabCount}
+        <span class="tab-title">${displayUrl.substring(0, 20)}</span>
         <span class="close">✕</span>
     `;
 
-    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-    document.querySelectorAll("iframe").forEach(f=>f.classList.remove("active"));
-
-    document.getElementById("tabs").prepend(tab);
-
-    // iframe view
+    // Create iframe view
     const frame = document.createElement("iframe");
-    frame.src = url;
+    frame.src = PROXY_ENABLED ? getProxyUrl(url) : url;
     frame.className = "active";
     frame.dataset.id = tabId;
+    frame.sandbox = "allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-downloads";
+    frame.allow = "fullscreen; clipboard-read; clipboard-write";
+
+    // Handle iframe load events
+    frame.onload = function() {
+        if (frame.dataset.id === activeTab) {
+            try {
+                // Update address bar
+                const currentSrc = frame.src;
+                if (currentSrc && !currentSrc.startsWith('about:')) {
+                    // Remove proxy prefix for display
+                    let displayUrl = currentSrc;
+                    if (displayUrl.startsWith(PROXY_PREFIX)) {
+                        displayUrl = decodeURIComponent(displayUrl.substring(PROXY_PREFIX.length));
+                    }
+                    document.getElementById('sj-address').value = displayUrl;
+                    
+                    // Update tab title
+                    const titleSpan = tab.querySelector('.tab-title');
+                    if (titleSpan) {
+                        try {
+                            const frameTitle = frame.contentDocument?.title;
+                            if (frameTitle) {
+                                titleSpan.textContent = frameTitle.substring(0, 20);
+                            }
+                        } catch(e) {
+                            // Cross-origin error, ignore
+                        }
+                    }
+                }
+            } catch(e) {
+                console.log('Frame load event error:', e);
+            }
+        }
+    };
+
+    // Handle frame errors
+    frame.onerror = function() {
+        if (frame.dataset.id === activeTab) {
+            showError(frame, `Failed to load: ${frame.src}`);
+        }
+    };
+
+    // Add to DOM
+    document.getElementById("tabs").prepend(tab);
     document.getElementById("views").appendChild(frame);
 
     activeTab = tabId;
 
-    tab.onclick = e=>{
-        if(e.target.classList.contains("close")){
+    // Tab click handler
+    tab.onclick = function(e) {
+        e.stopPropagation();
+        
+        if (e.target.classList.contains("close")) {
+            // Close tab
             frame.remove();
             tab.remove();
+            
+            // Activate another tab if exists
+            const remainingTabs = document.querySelectorAll(".tab");
+            const remainingFrames = document.querySelectorAll("iframe");
+            
+            if (remainingTabs.length > 0) {
+                remainingTabs[0].classList.add("active");
+                remainingFrames[0].classList.add("active");
+                activeTab = remainingFrames[0].dataset.id;
+            } else {
+                createTab();
+            }
             return;
         }
 
-        document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-        document.querySelectorAll("iframe").forEach(f=>f.classList.remove("active"));
+        // Switch to this tab
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll("iframe").forEach(f => f.classList.remove("active"));
 
         tab.classList.add("active");
         frame.classList.add("active");
         activeTab = tabId;
+        
+        // Update address bar
+        try {
+            let displayUrl = frame.src;
+            if (displayUrl.startsWith(PROXY_PREFIX)) {
+                displayUrl = decodeURIComponent(displayUrl.substring(PROXY_PREFIX.length));
+            }
+            document.getElementById('sj-address').value = displayUrl !== 'about:blank' ? displayUrl : '';
+        } catch(e) {
+            document.getElementById('sj-address').value = '';
+        }
     };
 }
 
-createTab();
+// Helper function to show error in iframe
+function showError(frame, message) {
+    const errorHtml = `
+        <html>
+        <head>
+            <style>
+                body { 
+                    background: #202124; 
+                    color: white; 
+                    font-family: system-ui; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    height: 100vh; 
+                    margin: 0;
+                }
+                .error-box {
+                    text-align: center;
+                    background: #2b2b2b;
+                    padding: 30px;
+                    border-radius: 12px;
+                    max-width: 400px;
+                }
+                h3 { color: #ff4444; margin-top: 0; }
+                button {
+                    background: #3c4043;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 18px;
+                    cursor: pointer;
+                    margin-top: 10px;
+                    font-size: 14px;
+                }
+                button:hover { background: #4a4f55; }
+            </style>
+        </head>
+        <body>
+            <div class="error-box">
+                <h3>Cannot Load Site</h3>
+                <p>${message}</p>
+                <p>Try opening in a new window instead.</p>
+                <button onclick="window.parent.document.getElementById('external-window').click()">
+                    Open in New Window
+                </button>
+            </div>
+        </body>
+        </html>
+    `;
+    frame.srcdoc = errorHtml;
+}
 
-/* Hook search form */
-document.getElementById("sj-form").onsubmit = e=>{
+// Navigation handlers
+document.getElementById('back-btn').onclick = () => {
+    const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
+    if(frame) {
+        try {
+            frame.contentWindow.history.back();
+        } catch(e) {
+            console.log('Navigation error:', e);
+        }
+    }
+};
+
+document.getElementById('forward-btn').onclick = () => {
+    const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
+    if(frame) {
+        try {
+            frame.contentWindow.history.forward();
+        } catch(e) {
+            console.log('Navigation error:', e);
+        }
+    }
+};
+
+document.getElementById('reload-btn').onclick = () => {
+    const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
+    if(frame) {
+        try {
+            frame.contentWindow.location.reload();
+        } catch(e) {
+            // Fallback to src reload
+            const currentSrc = frame.src;
+            frame.src = 'about:blank';
+            setTimeout(() => {
+                frame.src = currentSrc;
+            }, 50);
+        }
+    }
+};
+
+document.getElementById('external-window').onclick = () => {
+    const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
+    if(frame && frame.src && !frame.src.startsWith('about:')) {
+        let url = frame.src;
+        if (url.startsWith(PROXY_PREFIX)) {
+            url = decodeURIComponent(url.substring(PROXY_PREFIX.length));
+        }
+        window.open(url, '_blank');
+    }
+};
+
+// Form submission handler
+document.getElementById("sj-form").onsubmit = function(e) {
     e.preventDefault();
 
-    let url = document.getElementById("sj-address").value.trim();
-
-    if(!url.startsWith("http"))
-        url = "https://"+url;
-
+    const input = document.getElementById("sj-address").value;
+    const formattedUrl = formatUrl(input);
+    
+    // Get active frame
     const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
-    if(frame) frame.src = url;
+    if(frame) {
+        const proxyUrl = getProxyUrl(formattedUrl);
+        console.log('Loading:', formattedUrl, 'via proxy:', proxyUrl);
+        frame.src = proxyUrl;
+    }
 };
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Ctrl+T for new tab
+    if (e.ctrlKey && e.key === 't') {
+        e.preventDefault();
+        createTab();
+    }
+    
+    // Ctrl+W to close current tab
+    if (e.ctrlKey && e.key === 'w') {
+        e.preventDefault();
+        const activeFrame = document.querySelector(`iframe[data-id="${activeTab}"]`);
+        const activeTabElement = document.querySelector(`.tab[data-id="${activeTab}"]`);
+        if (activeFrame && activeTabElement) {
+            activeFrame.remove();
+            activeTabElement.remove();
+            
+            // Activate another tab if exists
+            const remainingTabs = document.querySelectorAll(".tab");
+            const remainingFrames = document.querySelectorAll("iframe");
+            
+            if (remainingTabs.length > 0) {
+                remainingTabs[0].classList.add("active");
+                remainingFrames[0].classList.add("active");
+                activeTab = remainingFrames[0].dataset.id;
+            } else {
+                createTab();
+            }
+        }
+    }
+    
+    // Ctrl+R or F5 to reload
+    if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+        e.preventDefault();
+        document.getElementById('reload-btn').click();
+    }
+    
+    // Ctrl+L to focus address bar
+    if (e.ctrlKey && e.key === 'l') {
+        e.preventDefault();
+        document.getElementById('sj-address').focus();
+        document.getElementById('sj-address').select();
+    }
+});
+
+// Create initial tab
+createTab();
+
+// Focus address bar on load
+window.addEventListener('load', () => {
+    document.getElementById('sj-address').focus();
+});
 </script>
 
 </body>
