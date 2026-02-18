@@ -1,104 +1,144 @@
 <!doctype html>
 <html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
 <title>BlockFree</title>
 
-<link rel="shortcut icon" href="favicon.webp">
+<link rel="shortcut icon" href="favicon.webp" />
 
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
+
 <script src="register-sw.js" defer></script>
 <script src="search.js" defer></script>
 <script src="index.js" defer></script>
 
 <style>
 html, body {
-    height:100%;
-    margin:0;
-    background:#202124;
-    font-family:system-ui;
-    color:white;
-    overflow:hidden;
+    height: 100%;
+    margin: 0;
+    background: #202124;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: white;
+    overflow: hidden;
 }
 
 .app {
-    height:100%;
-    display:flex;
-    flex-direction:column;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header with logo */
+.header-center {
+    text-align: center;
+    padding: 12px 0;
+    background: #171717;
+    border-bottom: 1px solid #3c4043;
+}
+
+.logo-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo {
+    height: 32px;
+    width: auto;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.logo:hover {
+    opacity: 0.8;
 }
 
 /* Tabs */
 .tabs {
-    height:38px;
-    background:#171717;
-    display:flex;
-    align-items:center;
-    padding:0 8px;
-    gap:6px;
+    height: 38px;
+    background: #171717;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    gap: 6px;
+    border-bottom: 1px solid #3c4043;
 }
 
 .tab {
-    background:#2b2b2b;
-    padding:6px 12px;
-    border-radius:10px 10px 0 0;
-    display:flex;
-    align-items:center;
-    gap:8px;
-    cursor:pointer;
-    transition: background 0.2s;
+    background: #2b2b2b;
+    padding: 6px 12px;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
     max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-size: 13px;
+    border: 1px solid transparent;
+    border-bottom: none;
 }
 
 .tab:hover {
-    background:#3c4043;
+    background: #3c4043;
 }
 
 .tab.active {
-    background:#3c4043;
+    background: #3c4043;
+    border-color: #8ab4f8;
+}
+
+.tab-title {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .close {
-    font-size:12px;
-    opacity:.7;
-    cursor:pointer;
-    margin-left: auto;
+    font-size: 12px;
+    opacity: 0.7;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
 }
 
 .close:hover {
-    opacity:1;
-    color:#ff4444;
+    opacity: 1;
+    background: rgba(255, 68, 68, 0.3);
+    color: #ff4444;
 }
 
 .new-tab {
-    font-size:20px;
-    padding:0 8px;
-    cursor:pointer;
-    color:#fff;
+    font-size: 20px;
+    padding: 0 8px;
+    cursor: pointer;
+    color: #fff;
+    font-weight: bold;
 }
 
 .new-tab:hover {
-    color:#8ab4f8;
+    color: #8ab4f8;
 }
 
 /* Browser bar */
 .browser-bar {
-    height:48px;
-    background:#2b2b2b;
-    display:flex;
-    align-items:center;
-    padding:0 12px;
-    gap:8px;
+    height: 56px;
+    background: #2b2b2b;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+    border-bottom: 1px solid #3c4043;
 }
 
 .nav-controls {
     display: flex;
     gap: 8px;
-    margin-right: 4px;
 }
 
 .nav-btn {
@@ -106,122 +146,150 @@ html, body {
     color: white;
     border: none;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
+    transition: all 0.2s;
 }
 
 .nav-btn:hover {
     background: #4a4f55;
+    transform: scale(1.05);
 }
 
 .nav-btn:active {
-    background: #5a5f67;
+    transform: scale(0.95);
 }
 
 #sj-form {
-    flex:1;
-    display:flex;
+    flex: 1;
+    display: flex;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 #sj-address {
-    width:100%;
-    height:34px;
-    border-radius:18px;
-    border:none;
-    padding:0 14px;
-    background:#3c4043;
-    color:white;
-    font-size:14px;
-    outline:none;
+    width: 100%;
+    height: 38px;
+    border-radius: 24px;
+    border: 1px solid #3c4043;
+    padding: 0 18px;
+    background: #3c4043;
+    color: white;
+    font-size: 14px;
+    outline: none;
     transition: all 0.2s;
 }
 
 #sj-address:focus {
-    background:#4a4f55;
-    box-shadow:0 0 0 2px #8ab4f8;
+    background: #4a4f55;
+    border-color: #8ab4f8;
+    box-shadow: 0 0 0 2px rgba(138, 180, 248, 0.3);
 }
 
-#external-window {
-    background:#3c4043;
-    color:white;
-    border:none;
-    border-radius:18px;
-    padding:6px 12px;
-    cursor:pointer;
-    font-size:16px;
-    display:flex;
-    align-items:center;
-    gap:4px;
-    transition:background 0.2s;
+#sj-address::placeholder {
+    color: #9aa0a6;
 }
 
-#external-window:hover {
-    background:#4a4f55;
+.external-btn {
+    background: #3c4043;
+    color: white;
+    border: none;
+    border-radius: 24px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.external-btn:hover {
+    background: #4a4f55;
+}
+
+.external-btn span {
+    font-size: 18px;
 }
 
 /* Page view */
 .view-area {
-    flex:1;
-    position:relative;
+    flex: 1;
+    position: relative;
+    background: #202124;
 }
 
 .view-area iframe {
-    position:absolute;
-    width:100%;
-    height:100%;
-    border:none;
-    display:none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: none;
 }
 
 .view-area iframe.active {
-    display:block;
+    display: block;
 }
 
-/* Error page styling */
-.error-page {
-    background:#202124;
-    color:white;
-    font-family:system-ui;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    height:100%;
-    margin:0;
+/* Error container (from original) */
+.desc {
+    padding: 20px;
+    background: #2b2b2b;
+    border-radius: 8px;
+    margin: 20px;
+    display: none;
 }
 
-.error-container {
-    text-align:center;
-    background:#2b2b2b;
-    padding:30px;
-    border-radius:12px;
-    max-width:400px;
+.desc.visible {
+    display: block;
 }
 
-.error-container h3 {
-    margin-top:0;
-    color:#ff4444;
+#sj-error {
+    color: #ff4444;
+    margin: 0 0 10px 0;
+    font-weight: bold;
 }
 
-.error-container button {
-    background:#3c4043;
-    color:white;
-    border:none;
-    padding:8px 16px;
-    border-radius:18px;
-    cursor:pointer;
-    margin-top:10px;
-    font-size:14px;
-    transition:background 0.2s;
+#sj-error-code {
+    background: #1e1e1e;
+    padding: 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #e0e0e0;
 }
 
-.error-container button:hover {
-    background:#4a4f55;
+/* Loading indicator */
+.loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #9aa0a6;
+}
+
+.spinner {
+    border: 3px solid #3c4043;
+    border-top: 3px solid #8ab4f8;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 </style>
 </head>
@@ -229,187 +297,196 @@ html, body {
 <body>
 <div class="app">
 
+<div class="header-center" title="BlockFree">
+    <img class="logo" src="logo.png" alt="BlockFree Logo" onclick="createTab()" />
+</div>
+
 <div class="tabs" id="tabs">
     <div class="new-tab" onclick="createTab()">+</div>
 </div>
 
 <div class="browser-bar">
-<div class="nav-controls">
-    <button id="back-btn" class="nav-btn" title="Back">←</button>
-    <button id="forward-btn" class="nav-btn" title="Forward">→</button>
-    <button id="reload-btn" class="nav-btn" title="Reload">↻</button>
-</div>
+    <div class="nav-controls">
+        <button id="back-btn" class="nav-btn" title="Back">←</button>
+        <button id="forward-btn" class="nav-btn" title="Forward">→</button>
+        <button id="reload-btn" class="nav-btn" title="Reload">↻</button>
+    </div>
 
-<form id="sj-form">
-<input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden">
-<input id="sj-address" placeholder="Search or enter URL" autocomplete="off">
-</form>
+    <form id="sj-form">
+        <input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
+        <input id="sj-address" type="text" placeholder="type a website ex: https://www.coolmathgames.com" />
+    </form>
 
-<button id="external-window" title="Open in new window">↗</button>
+    <button class="external-btn" id="external-window" title="Open in new tab">
+        <span>↗</span> New Window
+    </button>
 </div>
 
 <div class="view-area" id="views"></div>
+
+<div class="desc" id="error-container">
+    <p id="sj-error"></p>
+    <pre id="sj-error-code"></pre>
+</div>
 
 </div>
 
 <script>
 let tabCount = 0;
 let activeTab = null;
+let scramjetInitialized = false;
 
-// Scramjet protocol handler
-const SCRAMJET_ENABLED = true;
-
-// Initialize Scramjet
+// Initialize Scramjet exactly like the original
 window.addEventListener('load', async () => {
     try {
+        console.log('Loading BlockFree...');
+        
+        // Check if Scramjet is loaded
+        if (typeof scramjet !== 'undefined') {
+            console.log('Scramjet loaded');
+            scramjetInitialized = true;
+        }
+        
         if (window.__SCRAMJET) {
             console.log('Scramjet proxy available');
-            // Initialize Scramjet if needed
-            if (typeof scramjet !== 'undefined' && scramjet.init) {
-                await scramjet.init();
-                console.log('Scramjet initialized');
+        }
+        
+        if (window.__BARE_MUX) {
+            console.log('BareMux available');
+        }
+
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            try {
+                const registration = await navigator.serviceWorker.register('/register-sw.js');
+                console.log('Service Worker registered:', registration);
+            } catch (error) {
+                console.error('Service Worker registration failed:', error);
+                showError('Service Worker registration failed', error);
             }
         }
-    } catch(e) {
-        console.error('Scramjet initialization error:', e);
+
+        // Create initial tab
+        createTab('https://nowgg.fun');
+        
+    } catch (error) {
+        console.error('Initialization error:', error);
+        showError('Failed to initialize', error);
     }
 });
+
+function showError(message, error) {
+    const errorContainer = document.getElementById('error-container');
+    const errorElement = document.getElementById('sj-error');
+    const errorCodeElement = document.getElementById('sj-error-code');
+    
+    errorContainer.classList.add('visible');
+    errorElement.textContent = message || 'An error occurred';
+    errorCodeElement.textContent = error ? (error.stack || error.toString()) : '';
+}
 
 function formatUrl(input) {
     input = input.trim();
     
-    // If empty, return default
     if (!input) return 'about:blank';
     
-    // Check if it's a URL (has dots and no spaces)
-    if (input.includes('.') && !input.includes(' ')) {
-        // Add protocol if missing
-        if (!input.startsWith('http://') && !input.startsWith('https://')) {
-            return 'https://' + input;
-        }
+    // Check if it's a valid URL
+    try {
+        new URL(input);
         return input;
-    } else {
-        // Treat as search query
-        const searchEngine = document.getElementById("sj-search-engine").value;
-        return searchEngine.replace('%s', encodeURIComponent(input));
+    } catch {
+        // Not a valid URL, check if it's a domain
+        if (input.includes('.') && !input.includes(' ')) {
+            if (!input.startsWith('http://') && !input.startsWith('https://')) {
+                return 'https://' + input;
+            }
+            return input;
+        } else {
+            // Search query
+            const searchEngine = document.getElementById("sj-search-engine").value;
+            return searchEngine.replace('%s', encodeURIComponent(input));
+        }
     }
 }
 
-function getScramjetUrl(url) {
-    if (!SCRAMJET_ENABLED || url === 'about:blank' || url.startsWith('about:')) {
+function getProxyUrl(url) {
+    if (url === 'about:blank' || url.startsWith('about:')) {
         return url;
     }
     
-    // Don't proxy local files or data URLs
-    if (url.startsWith('data:') || url.startsWith('file:')) {
-        return url;
-    }
-    
-    // Use Scramjet protocol
-    // The format is typically: scramjet:// or /scramjet/ or whatever your setup uses
-    // Based on your files, it might be:
-    
-    // Option 1: If scramjet creates a service worker
-    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-        // Let the service worker handle it - just use the normal URL
-        return url;
-    }
-    
-    // Option 2: If using a specific prefix
-    // Try the most common patterns:
-    
-    // For Bare Server (common with scramjet)
-    if (window.__BARE_MUX) {
-        return '/baremux/' + url;
-    }
-    
-    // For Scramjet specific
-    if (window.__SCRAMJET) {
-        // Try to use the scramjet protocol
-        return 'scramjet://' + url.replace(/^https?:\/\//, '');
-    }
-    
-    // Fallback - try service worker
+    // For Scramjet - use the same protocol as your example
+    // The service worker should intercept these requests
     return url;
 }
 
-function createTab(url="about:blank") {
+function createTab(url = 'https://nowgg.fun') {
     tabCount++;
-    const tabId = "tab" + tabCount + "_" + Date.now();
+    const tabId = 'tab_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
-    // Remove active class from all existing tabs and iframes
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    document.querySelectorAll("iframe").forEach(f => f.classList.remove("active"));
+    // Remove active class from all tabs and iframes
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('iframe').forEach(f => f.classList.remove('active'));
 
     // Create tab button
-    const tab = document.createElement("div");
-    tab.className = "tab active";
+    const tab = document.createElement('div');
+    tab.className = 'tab active';
     tab.dataset.id = tabId;
     
-    const displayUrl = url === 'about:blank' ? 'New Tab' : url.split('/').pop() || url;
+    const displayName = url === 'about:blank' ? 'New Tab' : new URL(url).hostname || 'Loading...';
     tab.innerHTML = `
-        <span class="tab-title">${displayUrl.substring(0, 20)}</span>
+        <span class="tab-title">${displayName}</span>
         <span class="close">✕</span>
     `;
 
-    // Create iframe view
-    const frame = document.createElement("iframe");
-    
-    // Set the URL with Scramjet handling
-    frame.src = getScramjetUrl(url);
-    
-    frame.className = "active";
+    // Create iframe
+    const frame = document.createElement('iframe');
+    frame.src = getProxyUrl(url);
+    frame.className = 'active';
     frame.dataset.id = tabId;
     
-    // Important: Allow necessary features
-    frame.sandbox = "allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-downloads allow-orientation-lock allow-pointer-lock allow-presentation allow-top-navigation";
-    frame.allow = "fullscreen; clipboard-read; clipboard-write; geolocation; microphone; camera; autoplay";
-    
-    // Handle iframe load events
+    // Allow necessary features
+    frame.sandbox = 'allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-downloads allow-orientation-lock allow-pointer-lock allow-presentation allow-top-navigation';
+    frame.allow = 'fullscreen; clipboard-read; clipboard-write; geolocation; microphone; camera; autoplay; encrypted-media';
+
+    // Handle frame load
     frame.onload = function() {
         if (frame.dataset.id === activeTab) {
             try {
                 // Update address bar
-                const currentSrc = frame.src;
-                if (currentSrc && !currentSrc.startsWith('about:')) {
-                    // Clean up URL for display
-                    let displayUrl = currentSrc;
-                    if (displayUrl.startsWith('scramjet://')) {
-                        displayUrl = 'https://' + displayUrl.substring(10);
-                    } else if (displayUrl.includes('/baremux/')) {
-                        displayUrl = decodeURIComponent(displayUrl.split('/baremux/')[1]);
-                    }
-                    document.getElementById('sj-address').value = displayUrl;
-                    
-                    // Update tab title
-                    const titleSpan = tab.querySelector('.tab-title');
-                    if (titleSpan) {
+                document.getElementById('sj-address').value = frame.src;
+                
+                // Update tab title
+                const titleSpan = tab.querySelector('.tab-title');
+                if (titleSpan) {
+                    try {
+                        const title = frame.contentDocument?.title;
+                        if (title) {
+                            titleSpan.textContent = title.substring(0, 30);
+                        }
+                    } catch (e) {
+                        // Cross-origin, use hostname
                         try {
-                            const frameTitle = frame.contentDocument?.title;
-                            if (frameTitle) {
-                                titleSpan.textContent = frameTitle.substring(0, 20);
-                            }
-                        } catch(e) {
-                            // Cross-origin error, ignore
+                            const hostname = new URL(frame.src).hostname;
+                            titleSpan.textContent = hostname || 'Website';
+                        } catch {
+                            titleSpan.textContent = 'Website';
                         }
                     }
                 }
-            } catch(e) {
-                console.log('Frame load event error:', e);
+            } catch (e) {
+                console.log('Frame load error:', e);
             }
         }
     };
 
     // Handle frame errors
     frame.onerror = function() {
-        if (frame.dataset.id === activeTab) {
-            showError(frame, `Failed to load: ${url}`);
-        }
+        console.error('Frame failed to load:', frame.src);
     };
 
     // Add to DOM
-    document.getElementById("tabs").prepend(tab);
-    document.getElementById("views").appendChild(frame);
+    document.getElementById('tabs').prepend(tab);
+    document.getElementById('views').appendChild(frame);
 
     activeTab = tabId;
 
@@ -417,18 +494,18 @@ function createTab(url="about:blank") {
     tab.onclick = function(e) {
         e.stopPropagation();
         
-        if (e.target.classList.contains("close")) {
+        if (e.target.classList.contains('close')) {
             // Close tab
             frame.remove();
             tab.remove();
             
             // Activate another tab if exists
-            const remainingTabs = document.querySelectorAll(".tab");
-            const remainingFrames = document.querySelectorAll("iframe");
+            const remainingTabs = document.querySelectorAll('.tab');
+            const remainingFrames = document.querySelectorAll('iframe');
             
             if (remainingTabs.length > 0) {
-                remainingTabs[0].classList.add("active");
-                remainingFrames[0].classList.add("active");
+                remainingTabs[0].classList.add('active');
+                remainingFrames[0].classList.add('active');
                 activeTab = remainingFrames[0].dataset.id;
             } else {
                 createTab();
@@ -436,88 +513,26 @@ function createTab(url="about:blank") {
             return;
         }
 
-        // Switch to this tab
-        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-        document.querySelectorAll("iframe").forEach(f => f.classList.remove("active"));
+        // Switch tab
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('iframe').forEach(f => f.classList.remove('active'));
 
-        tab.classList.add("active");
-        frame.classList.add("active");
+        tab.classList.add('active');
+        frame.classList.add('active');
         activeTab = tabId;
         
         // Update address bar
-        try {
-            let displayUrl = frame.src;
-            if (displayUrl.startsWith('scramjet://')) {
-                displayUrl = 'https://' + displayUrl.substring(10);
-            } else if (displayUrl.includes('/baremux/')) {
-                displayUrl = decodeURIComponent(displayUrl.split('/baremux/')[1]);
-            }
-            document.getElementById('sj-address').value = displayUrl !== 'about:blank' ? displayUrl : '';
-        } catch(e) {
-            document.getElementById('sj-address').value = '';
-        }
+        document.getElementById('sj-address').value = frame.src;
     };
-}
-
-// Helper function to show error in iframe
-function showError(frame, message) {
-    const errorHtml = `
-        <html>
-        <head>
-            <style>
-                body { 
-                    background: #202124; 
-                    color: white; 
-                    font-family: system-ui; 
-                    display: flex; 
-                    align-items: center; 
-                    justify-content: center; 
-                    height: 100vh; 
-                    margin: 0;
-                }
-                .error-box {
-                    text-align: center;
-                    background: #2b2b2b;
-                    padding: 30px;
-                    border-radius: 12px;
-                    max-width: 400px;
-                }
-                h3 { color: #ff4444; margin-top: 0; }
-                button {
-                    background: #3c4043;
-                    color: white;
-                    border: none;
-                    padding: 8px 16px;
-                    border-radius: 18px;
-                    cursor: pointer;
-                    margin-top: 10px;
-                    font-size: 14px;
-                }
-                button:hover { background: #4a4f55; }
-            </style>
-        </head>
-        <body>
-            <div class="error-box">
-                <h3>Cannot Load Site</h3>
-                <p>${message}</p>
-                <p>Try opening in a new window instead.</p>
-                <button onclick="window.parent.document.getElementById('external-window').click()">
-                    Open in New Window
-                </button>
-            </div>
-        </body>
-        </html>
-    `;
-    frame.srcdoc = errorHtml;
 }
 
 // Navigation handlers
 document.getElementById('back-btn').onclick = () => {
     const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
-    if(frame) {
+    if (frame) {
         try {
             frame.contentWindow.history.back();
-        } catch(e) {
+        } catch (e) {
             console.log('Navigation error:', e);
         }
     }
@@ -525,10 +540,10 @@ document.getElementById('back-btn').onclick = () => {
 
 document.getElementById('forward-btn').onclick = () => {
     const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
-    if(frame) {
+    if (frame) {
         try {
             frame.contentWindow.history.forward();
-        } catch(e) {
+        } catch (e) {
             console.log('Navigation error:', e);
         }
     }
@@ -536,11 +551,11 @@ document.getElementById('forward-btn').onclick = () => {
 
 document.getElementById('reload-btn').onclick = () => {
     const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
-    if(frame) {
+    if (frame) {
         try {
             frame.contentWindow.location.reload();
-        } catch(e) {
-            // Fallback to src reload
+        } catch (e) {
+            // Fallback
             const currentSrc = frame.src;
             frame.src = 'about:blank';
             setTimeout(() => {
@@ -552,42 +567,31 @@ document.getElementById('reload-btn').onclick = () => {
 
 document.getElementById('external-window').onclick = () => {
     const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
-    if(frame && frame.src && !frame.src.startsWith('about:')) {
-        let url = frame.src;
-        if (url.startsWith('scramjet://')) {
-            url = 'https://' + url.substring(10);
-        } else if (url.includes('/baremux/')) {
-            url = decodeURIComponent(url.split('/baremux/')[1]);
-        }
-        window.open(url, '_blank');
+    if (frame && frame.src && !frame.src.startsWith('about:')) {
+        window.open(frame.src, '_blank');
     }
 };
 
-// Form submission handler
-document.getElementById("sj-form").onsubmit = function(e) {
+// Form submission - exactly like your example but with tab support
+document.getElementById('sj-form').onsubmit = function(e) {
     e.preventDefault();
-
-    const input = document.getElementById("sj-address").value;
-    const formattedUrl = formatUrl(input);
     
-    // Get active frame
+    const input = document.getElementById('sj-address').value;
+    const url = formatUrl(input);
+    
     const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
-    if(frame) {
-        const proxyUrl = getScramjetUrl(formattedUrl);
-        console.log('Loading:', formattedUrl, 'via:', proxyUrl);
-        frame.src = proxyUrl;
+    if (frame) {
+        frame.src = getProxyUrl(url);
     }
 };
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
-    // Ctrl+T for new tab
     if (e.ctrlKey && e.key === 't') {
         e.preventDefault();
         createTab();
     }
     
-    // Ctrl+W to close current tab
     if (e.ctrlKey && e.key === 'w') {
         e.preventDefault();
         const activeFrame = document.querySelector(`iframe[data-id="${activeTab}"]`);
@@ -596,13 +600,12 @@ document.addEventListener('keydown', (e) => {
             activeFrame.remove();
             activeTabElement.remove();
             
-            // Activate another tab if exists
-            const remainingTabs = document.querySelectorAll(".tab");
-            const remainingFrames = document.querySelectorAll("iframe");
+            const remainingTabs = document.querySelectorAll('.tab');
+            const remainingFrames = document.querySelectorAll('iframe');
             
             if (remainingTabs.length > 0) {
-                remainingTabs[0].classList.add("active");
-                remainingFrames[0].classList.add("active");
+                remainingTabs[0].classList.add('active');
+                remainingFrames[0].classList.add('active');
                 activeTab = remainingFrames[0].dataset.id;
             } else {
                 createTab();
@@ -610,13 +613,11 @@ document.addEventListener('keydown', (e) => {
         }
     }
     
-    // Ctrl+R or F5 to reload
     if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
         e.preventDefault();
         document.getElementById('reload-btn').click();
     }
     
-    // Ctrl+L to focus address bar
     if (e.ctrlKey && e.key === 'l') {
         e.preventDefault();
         document.getElementById('sj-address').focus();
@@ -624,22 +625,7 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Create initial tab
-createTab('https://nowgg.fun');
-
-// Focus address bar on load
-window.addEventListener('load', () => {
-    document.getElementById('sj-address').focus();
-    
-    // Try to register service worker for Scramjet
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/register-sw.js').then(reg => {
-            console.log('Service Worker registered for Scramjet');
-        }).catch(err => {
-            console.error('Service Worker registration failed:', err);
-        });
-    }
-});
+// Initial tab will be created after service worker registration
 </script>
 
 </body>
