@@ -1,40 +1,118 @@
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8" />
-		<meta
-			name="viewport"
-			content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
-		/>
-		<title>BlockFree</title>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BlockFree</title>
 
-		<link rel="shortcut icon" content="favicon.webp" />
-	
-		<script src="/scram/scramjet.all.js"></script>
-		<script src="/baremux/index.js"></script>
-		
-		<link rel="stylesheet" href="index.css" />
-		<script src="register-sw.js" defer></script>
-		<script src="search.js" defer></script>
-		<script src="index.js" defer></script>
-	</head>
+<link rel="shortcut icon" href="favicon.webp" />
 
-	<body>
-		<div title="
-		BlockFree" class="flex-center logo-wrapper header-center">
-			<img class="logo" src="logo.png" alt="BlockFree Logo" />
-		</div>
-		<form id="sj-form" class="flex-center">
-			<input
-				id="sj-search-engine"
-				value="https://www.google.com/search?q=%s"
-				type="hidden"
-			/>
-			<input id="sj-address" type="text" placeholder="type a website ex: https://www.coolmathgames.com" />
-		</form>
-		<div class="desc left-margin">
-			<p id="sj-error"></p>
-			<pre id="sj-error-code"></pre>
-		</div>
-	</body>
+<script src="/scram/scramjet.all.js"></script>
+<script src="/baremux/index.js"></script>
+
+<script src="register-sw.js" defer></script>
+<script src="search.js" defer></script>
+<script src="index.js" defer></script>
+
+<style>
+/* Reset */
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, sans-serif;
+    background: #202124;
+    color: white;
+}
+
+/* Top browser bar */
+.browser-bar {
+    background: #2b2b2b;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.5);
+}
+
+/* Fake buttons */
+.nav-btn {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #555;
+}
+
+/* Address bar */
+.address-wrapper {
+    flex: 1;
+}
+
+#sj-address {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 20px;
+    border: none;
+    background: #3c4043;
+    color: white;
+    font-size: 14px;
+    outline: none;
+}
+
+#sj-address::placeholder {
+    color: #bbb;
+}
+
+/* Logo area */
+.logo-area {
+    text-align: center;
+    margin-top: 80px;
+}
+
+.logo-area img {
+    width: 90px;
+    opacity: .9;
+}
+
+/* Error area */
+.desc {
+    text-align: center;
+    margin-top: 20px;
+    opacity: .8;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Top Chrome-style bar -->
+<div class="browser-bar">
+    <div class="nav-btn"></div>
+    <div class="nav-btn"></div>
+    <div class="nav-btn"></div>
+
+    <form id="sj-form" class="address-wrapper">
+        <input
+            id="sj-search-engine"
+            value="https://www.google.com/search?q=%s"
+            type="hidden"
+        />
+        <input
+            id="sj-address"
+            type="text"
+            placeholder="Search Google or type a URL"
+        />
+    </form>
+</div>
+
+<!-- Logo -->
+<div class="logo-area">
+    <img src="logo.png" alt="BlockFree Logo">
+</div>
+
+<!-- Errors -->
+<div class="desc">
+    <p id="sj-error"></p>
+    <pre id="sj-error-code"></pre>
+</div>
+
+</body>
 </html>
