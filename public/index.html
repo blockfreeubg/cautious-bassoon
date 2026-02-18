@@ -256,21 +256,22 @@ html, body {
 let tabCount = 0;
 let activeTab = null;
 
-// Proxy configuration
-const PROXY_ENABLED = true;
-const PROXY_PREFIX = '/baremux/'; // Adjust this based on your proxy setup
+// Scramjet protocol handler
+const SCRAMJET_ENABLED = true;
 
-// Initialize proxy if available
+// Initialize Scramjet
 window.addEventListener('load', async () => {
     try {
         if (window.__SCRAMJET) {
             console.log('Scramjet proxy available');
-        }
-        if (window.__BARE_MUX) {
-            console.log('BareMux available');
+            // Initialize Scramjet if needed
+            if (typeof scramjet !== 'undefined' && scramjet.init) {
+                await scramjet.init();
+                console.log('Scramjet initialized');
+            }
         }
     } catch(e) {
-        console.error('Proxy initialization:', e);
+        console.error('Scramjet initialization error:', e);
     }
 });
 
@@ -294,8 +295,8 @@ function formatUrl(input) {
     }
 }
 
-function getProxyUrl(url) {
-    if (!PROXY_ENABLED || url === 'about:blank' || url.startsWith('about:')) {
+function getScramjetUrl(url) {
+    if (!SCRAMJET_ENABLED || url === 'about:blank' || url.startsWith('about:')) {
         return url;
     }
     
@@ -304,8 +305,32 @@ function getProxyUrl(url) {
         return url;
     }
     
-    // Use proxy for external URLs
-    return PROXY_PREFIX + url;
+    // Use Scramjet protocol
+    // The format is typically: scramjet:// or /scramjet/ or whatever your setup uses
+    // Based on your files, it might be:
+    
+    // Option 1: If scramjet creates a service worker
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        // Let the service worker handle it - just use the normal URL
+        return url;
+    }
+    
+    // Option 2: If using a specific prefix
+    // Try the most common patterns:
+    
+    // For Bare Server (common with scramjet)
+    if (window.__BARE_MUX) {
+        return '/baremux/' + url;
+    }
+    
+    // For Scramjet specific
+    if (window.__SCRAMJET) {
+        // Try to use the scramjet protocol
+        return 'scramjet://' + url.replace(/^https?:\/\//, '');
+    }
+    
+    // Fallback - try service worker
+    return url;
 }
 
 function createTab(url="about:blank") {
@@ -329,12 +354,17 @@ function createTab(url="about:blank") {
 
     // Create iframe view
     const frame = document.createElement("iframe");
-    frame.src = PROXY_ENABLED ? getProxyUrl(url) : url;
+    
+    // Set the URL with Scramjet handling
+    frame.src = getScramjetUrl(url);
+    
     frame.className = "active";
     frame.dataset.id = tabId;
-    frame.sandbox = "allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-downloads";
-    frame.allow = "fullscreen; clipboard-read; clipboard-write";
-
+    
+    // Important: Allow necessary features
+    frame.sandbox = "allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-downloads allow-orientation-lock allow-pointer-lock allow-presentation allow-top-navigation";
+    frame.allow = "fullscreen; clipboard-read; clipboard-write; geolocation; microphone; camera; autoplay";
+    
     // Handle iframe load events
     frame.onload = function() {
         if (frame.dataset.id === activeTab) {
@@ -342,10 +372,12 @@ function createTab(url="about:blank") {
                 // Update address bar
                 const currentSrc = frame.src;
                 if (currentSrc && !currentSrc.startsWith('about:')) {
-                    // Remove proxy prefix for display
+                    // Clean up URL for display
                     let displayUrl = currentSrc;
-                    if (displayUrl.startsWith(PROXY_PREFIX)) {
-                        displayUrl = decodeURIComponent(displayUrl.substring(PROXY_PREFIX.length));
+                    if (displayUrl.startsWith('scramjet://')) {
+                        displayUrl = 'https://' + displayUrl.substring(10);
+                    } else if (displayUrl.includes('/baremux/')) {
+                        displayUrl = decodeURIComponent(displayUrl.split('/baremux/')[1]);
                     }
                     document.getElementById('sj-address').value = displayUrl;
                     
@@ -371,7 +403,7 @@ function createTab(url="about:blank") {
     // Handle frame errors
     frame.onerror = function() {
         if (frame.dataset.id === activeTab) {
-            showError(frame, `Failed to load: ${frame.src}`);
+            showError(frame, `Failed to load: ${url}`);
         }
     };
 
@@ -415,8 +447,10 @@ function createTab(url="about:blank") {
         // Update address bar
         try {
             let displayUrl = frame.src;
-            if (displayUrl.startsWith(PROXY_PREFIX)) {
-                displayUrl = decodeURIComponent(displayUrl.substring(PROXY_PREFIX.length));
+            if (displayUrl.startsWith('scramjet://')) {
+                displayUrl = 'https://' + displayUrl.substring(10);
+            } else if (displayUrl.includes('/baremux/')) {
+                displayUrl = decodeURIComponent(displayUrl.split('/baremux/')[1]);
             }
             document.getElementById('sj-address').value = displayUrl !== 'about:blank' ? displayUrl : '';
         } catch(e) {
@@ -520,8 +554,10 @@ document.getElementById('external-window').onclick = () => {
     const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
     if(frame && frame.src && !frame.src.startsWith('about:')) {
         let url = frame.src;
-        if (url.startsWith(PROXY_PREFIX)) {
-            url = decodeURIComponent(url.substring(PROXY_PREFIX.length));
+        if (url.startsWith('scramjet://')) {
+            url = 'https://' + url.substring(10);
+        } else if (url.includes('/baremux/')) {
+            url = decodeURIComponent(url.split('/baremux/')[1]);
         }
         window.open(url, '_blank');
     }
@@ -537,8 +573,8 @@ document.getElementById("sj-form").onsubmit = function(e) {
     // Get active frame
     const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
     if(frame) {
-        const proxyUrl = getProxyUrl(formattedUrl);
-        console.log('Loading:', formattedUrl, 'via proxy:', proxyUrl);
+        const proxyUrl = getScramjetUrl(formattedUrl);
+        console.log('Loading:', formattedUrl, 'via:', proxyUrl);
         frame.src = proxyUrl;
     }
 };
@@ -589,11 +625,20 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Create initial tab
-createTab();
+createTab('https://nowgg.fun');
 
 // Focus address bar on load
 window.addEventListener('load', () => {
     document.getElementById('sj-address').focus();
+    
+    // Try to register service worker for Scramjet
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/register-sw.js').then(reg => {
+            console.log('Service Worker registered for Scramjet');
+        }).catch(err => {
+            console.error('Service Worker registration failed:', err);
+        });
+    }
 });
 </script>
 
