@@ -1,15 +1,14 @@
 <!doctype html>
 <html>
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BlockFree</title>
 
-<link rel="shortcut icon" href="favicon.webp" />
+<link rel="shortcut icon" href="favicon.webp">
 
 <script src="/scram/scramjet.all.js"></script>
 <script src="/baremux/index.js"></script>
-
 <script src="register-sw.js" defer></script>
 <script src="search.js" defer></script>
 <script src="index.js" defer></script>
@@ -19,614 +18,128 @@ html, body {
     height: 100%;
     margin: 0;
     background: #202124;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: system-ui, sans-serif;
     color: white;
     overflow: hidden;
 }
 
+/* Layout */
 .app {
     height: 100%;
     display: flex;
     flex-direction: column;
 }
 
-/* Header with logo */
-.header-center {
-    text-align: center;
-    padding: 12px 0;
+/* Tabs bar */
+.tabs {
+    height: 38px;
     background: #171717;
-    border-bottom: 1px solid #3c4043;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 6px;
 }
 
-.logo-wrapper {
+/* Individual tab */
+.tab {
+    background: #2b2b2b;
+    padding: 6px 14px;
+    border-radius: 10px 10px 0 0;
+    font-size: 13px;
+    opacity: .9;
+}
+
+/* Add tab button */
+.new-tab {
+    font-size: 18px;
+    padding: 0 8px;
+    cursor: pointer;
+    opacity: .7;
+}
+
+/* Address bar */
+.browser-bar {
+    height: 48px;
+    background: #2b2b2b;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+}
+
+#sj-form {
+    flex: 1;
+    display: flex;
+}
+
+#sj-address {
+    width: 100%;
+    height: 34px;
+    border-radius: 18px;
+    border: none;
+    padding: 0 14px;
+    background: #3c4043;
+    color: white;
+    font-size: 14px;
+    outline: none;
+}
+
+/* Main area */
+.main {
+    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .logo {
-    height: 32px;
-    width: auto;
-    cursor: pointer;
-    transition: opacity 0.2s;
+    width: 110px;
+    opacity: .85;
 }
 
-.logo:hover {
-    opacity: 0.8;
-}
-
-/* Tabs */
-.tabs {
-    height: 38px;
-    background: #171717;
-    display: flex;
-    align-items: center;
-    padding: 0 8px;
-    gap: 6px;
-    border-bottom: 1px solid #3c4043;
-}
-
-.tab {
-    background: #2b2b2b;
-    padding: 6px 12px;
-    border-radius: 8px 8px 0 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 13px;
-    border: 1px solid transparent;
-    border-bottom: none;
-}
-
-.tab:hover {
-    background: #3c4043;
-}
-
-.tab.active {
-    background: #3c4043;
-    border-color: #8ab4f8;
-}
-
-.tab-title {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.close {
-    font-size: 12px;
-    opacity: 0.7;
-    cursor: pointer;
-    padding: 2px 4px;
-    border-radius: 4px;
-}
-
-.close:hover {
-    opacity: 1;
-    background: rgba(255, 68, 68, 0.3);
-    color: #ff4444;
-}
-
-.new-tab {
-    font-size: 20px;
-    padding: 0 8px;
-    cursor: pointer;
-    color: #fff;
-    font-weight: bold;
-}
-
-.new-tab:hover {
-    color: #8ab4f8;
-}
-
-/* Browser bar */
-.browser-bar {
-    height: 56px;
-    background: #2b2b2b;
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    gap: 12px;
-    border-bottom: 1px solid #3c4043;
-}
-
-.nav-controls {
-    display: flex;
-    gap: 8px;
-}
-
-.nav-btn {
-    background: #3c4043;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 34px;
-    height: 34px;
-    cursor: pointer;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-}
-
-.nav-btn:hover {
-    background: #4a4f55;
-    transform: scale(1.05);
-}
-
-.nav-btn:active {
-    transform: scale(0.95);
-}
-
-#sj-form {
-    flex: 1;
-    display: flex;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-#sj-address {
-    width: 100%;
-    height: 38px;
-    border-radius: 24px;
-    border: 1px solid #3c4043;
-    padding: 0 18px;
-    background: #3c4043;
-    color: white;
-    font-size: 14px;
-    outline: none;
-    transition: all 0.2s;
-}
-
-#sj-address:focus {
-    background: #4a4f55;
-    border-color: #8ab4f8;
-    box-shadow: 0 0 0 2px rgba(138, 180, 248, 0.3);
-}
-
-#sj-address::placeholder {
-    color: #9aa0a6;
-}
-
-.external-btn {
-    background: #3c4043;
-    color: white;
-    border: none;
-    border-radius: 24px;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s;
-    white-space: nowrap;
-}
-
-.external-btn:hover {
-    background: #4a4f55;
-}
-
-.external-btn span {
-    font-size: 18px;
-}
-
-/* Page view */
-.view-area {
-    flex: 1;
-    position: relative;
-    background: #202124;
-}
-
-.view-area iframe {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: none;
-}
-
-.view-area iframe.active {
-    display: block;
-}
-
-/* Error container (from original) */
+/* Errors */
 .desc {
-    padding: 20px;
-    background: #2b2b2b;
-    border-radius: 8px;
-    margin: 20px;
-    display: none;
-}
-
-.desc.visible {
-    display: block;
-}
-
-#sj-error {
-    color: #ff4444;
-    margin: 0 0 10px 0;
-    font-weight: bold;
-}
-
-#sj-error-code {
-    background: #1e1e1e;
-    padding: 10px;
-    border-radius: 4px;
-    overflow-x: auto;
-    margin: 0;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    color: #e0e0e0;
-}
-
-/* Loading indicator */
-.loading {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    bottom: 20px;
+    width: 100%;
     text-align: center;
-    color: #9aa0a6;
-}
-
-.spinner {
-    border: 3px solid #3c4043;
-    border-top: 3px solid #8ab4f8;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 10px;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    opacity: .7;
 }
 </style>
 </head>
 
 <body>
+
 <div class="app">
 
-<div class="header-center" title="BlockFree">
-    <img class="logo" src="logo.png" alt="BlockFree Logo" onclick="createTab()" />
-</div>
-
-<div class="tabs" id="tabs">
-    <div class="new-tab" onclick="createTab()">+</div>
-</div>
-
-<div class="browser-bar">
-    <div class="nav-controls">
-        <button id="back-btn" class="nav-btn" title="Back">←</button>
-        <button id="forward-btn" class="nav-btn" title="Forward">→</button>
-        <button id="reload-btn" class="nav-btn" title="Reload">↻</button>
+    <!-- Tabs -->
+    <div class="tabs">
+        <div class="tab">New Tab</div>
+        <div class="new-tab">+</div>
     </div>
 
-    <form id="sj-form">
-        <input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
-        <input id="sj-address" type="text" placeholder="type a website ex: https://www.coolmathgames.com" />
-    </form>
+    <!-- Address bar -->
+    <div class="browser-bar">
+        <form id="sj-form">
+            <input id="sj-search-engine"
+                value="https://www.google.com/search?q=%s"
+                type="hidden">
+            <input id="sj-address"
+                type="text"
+                placeholder="Search or type a URL">
+        </form>
+    </div>
 
-    <button class="external-btn" id="external-window" title="Open in new tab">
-        <span>↗</span> New Window
-    </button>
+    <!-- Main -->
+    <div class="main">
+        <img src="logo.png" class="logo">
+    </div>
+
 </div>
 
-<div class="view-area" id="views"></div>
-
-<div class="desc" id="error-container">
+<div class="desc">
     <p id="sj-error"></p>
     <pre id="sj-error-code"></pre>
 </div>
-
-</div>
-
-<script>
-let tabCount = 0;
-let activeTab = null;
-let scramjetInitialized = false;
-
-// Initialize Scramjet exactly like the original
-window.addEventListener('load', async () => {
-    try {
-        console.log('Loading BlockFree...');
-        
-        // Check if Scramjet is loaded
-        if (typeof scramjet !== 'undefined') {
-            console.log('Scramjet loaded');
-            scramjetInitialized = true;
-        }
-        
-        if (window.__SCRAMJET) {
-            console.log('Scramjet proxy available');
-        }
-        
-        if (window.__BARE_MUX) {
-            console.log('BareMux available');
-        }
-
-        // Register service worker
-        if ('serviceWorker' in navigator) {
-            try {
-                const registration = await navigator.serviceWorker.register('/register-sw.js');
-                console.log('Service Worker registered:', registration);
-            } catch (error) {
-                console.error('Service Worker registration failed:', error);
-                showError('Service Worker registration failed', error);
-            }
-        }
-
-        // Create initial tab
-        createTab('https://nowgg.fun');
-        
-    } catch (error) {
-        console.error('Initialization error:', error);
-        showError('Failed to initialize', error);
-    }
-});
-
-function showError(message, error) {
-    const errorContainer = document.getElementById('error-container');
-    const errorElement = document.getElementById('sj-error');
-    const errorCodeElement = document.getElementById('sj-error-code');
-    
-    errorContainer.classList.add('visible');
-    errorElement.textContent = message || 'An error occurred';
-    errorCodeElement.textContent = error ? (error.stack || error.toString()) : '';
-}
-
-function formatUrl(input) {
-    input = input.trim();
-    
-    if (!input) return 'about:blank';
-    
-    // Check if it's a valid URL
-    try {
-        new URL(input);
-        return input;
-    } catch {
-        // Not a valid URL, check if it's a domain
-        if (input.includes('.') && !input.includes(' ')) {
-            if (!input.startsWith('http://') && !input.startsWith('https://')) {
-                return 'https://' + input;
-            }
-            return input;
-        } else {
-            // Search query
-            const searchEngine = document.getElementById("sj-search-engine").value;
-            return searchEngine.replace('%s', encodeURIComponent(input));
-        }
-    }
-}
-
-function getProxyUrl(url) {
-    if (url === 'about:blank' || url.startsWith('about:')) {
-        return url;
-    }
-    
-    // For Scramjet - use the same protocol as your example
-    // The service worker should intercept these requests
-    return url;
-}
-
-function createTab(url = 'https://nowgg.fun') {
-    tabCount++;
-    const tabId = 'tab_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-
-    // Remove active class from all tabs and iframes
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('iframe').forEach(f => f.classList.remove('active'));
-
-    // Create tab button
-    const tab = document.createElement('div');
-    tab.className = 'tab active';
-    tab.dataset.id = tabId;
-    
-    const displayName = url === 'about:blank' ? 'New Tab' : new URL(url).hostname || 'Loading...';
-    tab.innerHTML = `
-        <span class="tab-title">${displayName}</span>
-        <span class="close">✕</span>
-    `;
-
-    // Create iframe
-    const frame = document.createElement('iframe');
-    frame.src = getProxyUrl(url);
-    frame.className = 'active';
-    frame.dataset.id = tabId;
-    
-    // Allow necessary features
-    frame.sandbox = 'allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-downloads allow-orientation-lock allow-pointer-lock allow-presentation allow-top-navigation';
-    frame.allow = 'fullscreen; clipboard-read; clipboard-write; geolocation; microphone; camera; autoplay; encrypted-media';
-
-    // Handle frame load
-    frame.onload = function() {
-        if (frame.dataset.id === activeTab) {
-            try {
-                // Update address bar
-                document.getElementById('sj-address').value = frame.src;
-                
-                // Update tab title
-                const titleSpan = tab.querySelector('.tab-title');
-                if (titleSpan) {
-                    try {
-                        const title = frame.contentDocument?.title;
-                        if (title) {
-                            titleSpan.textContent = title.substring(0, 30);
-                        }
-                    } catch (e) {
-                        // Cross-origin, use hostname
-                        try {
-                            const hostname = new URL(frame.src).hostname;
-                            titleSpan.textContent = hostname || 'Website';
-                        } catch {
-                            titleSpan.textContent = 'Website';
-                        }
-                    }
-                }
-            } catch (e) {
-                console.log('Frame load error:', e);
-            }
-        }
-    };
-
-    // Handle frame errors
-    frame.onerror = function() {
-        console.error('Frame failed to load:', frame.src);
-    };
-
-    // Add to DOM
-    document.getElementById('tabs').prepend(tab);
-    document.getElementById('views').appendChild(frame);
-
-    activeTab = tabId;
-
-    // Tab click handler
-    tab.onclick = function(e) {
-        e.stopPropagation();
-        
-        if (e.target.classList.contains('close')) {
-            // Close tab
-            frame.remove();
-            tab.remove();
-            
-            // Activate another tab if exists
-            const remainingTabs = document.querySelectorAll('.tab');
-            const remainingFrames = document.querySelectorAll('iframe');
-            
-            if (remainingTabs.length > 0) {
-                remainingTabs[0].classList.add('active');
-                remainingFrames[0].classList.add('active');
-                activeTab = remainingFrames[0].dataset.id;
-            } else {
-                createTab();
-            }
-            return;
-        }
-
-        // Switch tab
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('iframe').forEach(f => f.classList.remove('active'));
-
-        tab.classList.add('active');
-        frame.classList.add('active');
-        activeTab = tabId;
-        
-        // Update address bar
-        document.getElementById('sj-address').value = frame.src;
-    };
-}
-
-// Navigation handlers
-document.getElementById('back-btn').onclick = () => {
-    const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
-    if (frame) {
-        try {
-            frame.contentWindow.history.back();
-        } catch (e) {
-            console.log('Navigation error:', e);
-        }
-    }
-};
-
-document.getElementById('forward-btn').onclick = () => {
-    const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
-    if (frame) {
-        try {
-            frame.contentWindow.history.forward();
-        } catch (e) {
-            console.log('Navigation error:', e);
-        }
-    }
-};
-
-document.getElementById('reload-btn').onclick = () => {
-    const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
-    if (frame) {
-        try {
-            frame.contentWindow.location.reload();
-        } catch (e) {
-            // Fallback
-            const currentSrc = frame.src;
-            frame.src = 'about:blank';
-            setTimeout(() => {
-                frame.src = currentSrc;
-            }, 50);
-        }
-    }
-};
-
-document.getElementById('external-window').onclick = () => {
-    const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
-    if (frame && frame.src && !frame.src.startsWith('about:')) {
-        window.open(frame.src, '_blank');
-    }
-};
-
-// Form submission - exactly like your example but with tab support
-document.getElementById('sj-form').onsubmit = function(e) {
-    e.preventDefault();
-    
-    const input = document.getElementById('sj-address').value;
-    const url = formatUrl(input);
-    
-    const frame = document.querySelector(`iframe[data-id="${activeTab}"]`);
-    if (frame) {
-        frame.src = getProxyUrl(url);
-    }
-};
-
-// Keyboard shortcuts
-document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.key === 't') {
-        e.preventDefault();
-        createTab();
-    }
-    
-    if (e.ctrlKey && e.key === 'w') {
-        e.preventDefault();
-        const activeFrame = document.querySelector(`iframe[data-id="${activeTab}"]`);
-        const activeTabElement = document.querySelector(`.tab[data-id="${activeTab}"]`);
-        if (activeFrame && activeTabElement) {
-            activeFrame.remove();
-            activeTabElement.remove();
-            
-            const remainingTabs = document.querySelectorAll('.tab');
-            const remainingFrames = document.querySelectorAll('iframe');
-            
-            if (remainingTabs.length > 0) {
-                remainingTabs[0].classList.add('active');
-                remainingFrames[0].classList.add('active');
-                activeTab = remainingFrames[0].dataset.id;
-            } else {
-                createTab();
-            }
-        }
-    }
-    
-    if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
-        e.preventDefault();
-        document.getElementById('reload-btn').click();
-    }
-    
-    if (e.ctrlKey && e.key === 'l') {
-        e.preventDefault();
-        document.getElementById('sj-address').focus();
-        document.getElementById('sj-address').select();
-    }
-});
-
-// Initial tab will be created after service worker registration
-</script>
 
 </body>
 </html>
